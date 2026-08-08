@@ -60,3 +60,8 @@ export async function createTeamAdmin(data){
   const callable=httpsCallable(functions,'createTeamAdmin');
   return callable(data);
 }
+
+export async function createMatchController(data){
+  const callable=httpsCallable(functions,'createMatchController');
+  return callable(data);
+}

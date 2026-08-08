@@ -4,15 +4,19 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function isSuperAdmin() { return signedIn() && request.auth.token.role == 'super_admin'; }
     function isTeamAdmin(teamId) { return signedIn() && request.auth.token.role == 'team_admin' && request.auth.token.teamId == teamId; }
+    function isMatchController() { return signedIn() && request.auth.token.role == 'match_controller'; }
+    function isNplTeam(teamId) {
+      return teamId in ['avengers-fc', 'atletico-fc', 'sporting-challengers', 'al-oyoun-fc', 'phoenix-united', 'sporting-legends', 'golden-falcon', 'black-wolves'];
+    }
 
     match /live/{document} {
       allow read: if true;
-      allow write: if isSuperAdmin();
+      allow write: if isSuperAdmin() || isMatchController();
     }
 
     match /tournaments/{document} {
       allow read: if true;
-      allow write: if isSuperAdmin();
+      allow write: if isSuperAdmin() || isMatchController();
     }
 
     match /club/{document} {
@@ -22,10 +26,10 @@ service cloud.firestore {
 
     match /teams/{teamId} {
       allow read: if true;
-      allow write: if isSuperAdmin() || isTeamAdmin(teamId);
+      allow write: if isSuperAdmin() || isTeamAdmin(teamId) || (isMatchController() && isNplTeam(teamId));
       match /members/{memberId} {
         allow read: if true;
-        allow write: if isSuperAdmin() || isTeamAdmin(teamId);
+        allow write: if isSuperAdmin() || isTeamAdmin(teamId) || (isMatchController() && isNplTeam(teamId));
       }
     }
 
