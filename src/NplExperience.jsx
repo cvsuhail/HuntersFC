@@ -14,15 +14,17 @@ function TeamLogo({name}){return <img className={`lc-team-logo${name==='Atletico
 
 function MatchCard({match,featured=false}){
   const displayDate=match.date?new Date(`${match.date}T00:00:00`).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'DATE TBD';
+  const showScore=match.completed||['LIVE','HALF TIME','FULL TIME'].includes(match.status);
+  const goals=Array.isArray(match.goals)?[...match.goals].sort((a,b)=>(a.minute||999)-(b.minute||999)):[];
   return <article className={`lc-match-card ${featured?'featured':''}`}>
     <header><span>{match.id?`MATCH ${String(match.id).padStart(2,'0')}`:match.status||'UPCOMING'}</span><small>{match.round||'NPL SEASON 4'}</small></header>
     <div className="lc-versus">
       <div><TeamLogo name={match.homeTeam||match.home}/><b>{match.homeTeam||match.home}</b></div>
-      <strong>{match.status==='LIVE'||match.completed?<><i>{match.completed?'FULL TIME':'LIVE'}</i>{match.homeScore??0}<em>:</em>{match.awayScore??0}</>:<><small>{displayDate}<br/>{match.time||'TIME TBD'}</small><em>VS</em></>}</strong>
+      <strong>{showScore?<><i>{match.completed||match.status==='FULL TIME'?'FULL TIME':match.status}</i>{match.homeScore??0}<em>:</em>{match.awayScore??0}</>:<><small>{displayDate}<br/>{match.time||'TIME TBD'}</small><em>VS</em></>}</strong>
       <div><TeamLogo name={match.awayTeam||match.away}/><b>{match.awayTeam||match.away}</b></div>
     </div>
     {match.completed&&Number(match.homeScore)===Number(match.awayScore)&&match.homePenalties!=null&&match.awayPenalties!=null&&<div className="lc-penalty-result"><span>PENALTIES</span><b>{match.homePenalties} — {match.awayPenalties}</b></div>}
-    {Array.isArray(match.goals)&&match.goals.length>0&&<div className="lc-goal-timeline"><small>SCORING TIMELINE</small>{[...match.goals].sort((a,b)=>(a.minute||999)-(b.minute||999)).map(goal=><div className={goal.side} key={goal.id||`${goal.scorer}-${goal.minute}`}><span>{goal.type==='penalty'?'P':'⚽'}</span><p><b>{goal.scorer}</b><em>{goal.side==='home'?(match.homeTeam||match.home):(match.awayTeam||match.away)}{goal.type==='penalty'?' · PENALTY':''}</em></p><strong>{goal.minute?`${goal.minute}′`:'—'}</strong></div>)}</div>}
+    {goals.length>0&&<div className="lc-goal-timeline"><small>GOAL SCORERS</small><div className="lc-scorer-side home">{goals.filter(goal=>goal.side==='home').map(goal=><div className="lc-scorer-row" key={goal.id||`${goal.scorer}-${goal.minute}`}><span>{goal.type==='penalty'?'P':'⚽'}</span><p><b>{goal.scorer}</b>{goal.type==='penalty'&&<em>PENALTY</em>}</p>{goal.minute&&<strong>{goal.minute}′</strong>}</div>)}</div><div className="lc-scorer-side away">{goals.filter(goal=>goal.side==='away').map(goal=><div className="lc-scorer-row" key={goal.id||`${goal.scorer}-${goal.minute}`}><span>{goal.type==='penalty'?'P':'⚽'}</span><p><b>{goal.scorer}</b>{goal.type==='penalty'&&<em>PENALTY</em>}</p>{goal.minute&&<strong>{goal.minute}′</strong>}</div>)}</div></div>}
   </article>
 }
 
