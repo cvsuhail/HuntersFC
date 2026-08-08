@@ -1,6 +1,7 @@
 "use client";
 import React,{useEffect,useMemo,useState} from 'react';
 import Link from 'next/link';
+import {useRouter} from 'next/navigation';
 import {getIdTokenResult,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'firebase/auth';
 import {auth} from './firebase';
 import {addTeamMember,createMatchController,createTeamAdmin,removeTeamMember,saveFixtureSchedule,saveTeamFormation,saveTeamManagers,updateLiveMatch,updateTeamMember,watchFixtureSchedule,watchLiveMatch,watchTeam,watchTeamMembers} from './firebaseData';
@@ -21,13 +22,15 @@ function TeamScopeSelector({value,onChange,nplOnly=false}){const options=nplOnly
 function FixtureScheduler({setNotice}){const [schedule,setSchedule]=useState(groupFixtures);const [busy,setBusy]=useState(false);useEffect(()=>watchFixtureSchedule(remote=>{if(remote.length)setSchedule(groupFixtures.map(base=>({...base,...remote.find(item=>item.id===base.id)}))) }),[]);function change(id,field,value){setSchedule(current=>current.map(match=>match.id===id?{...match,[field]:value}:match))}async function publish(){setBusy(true);try{await saveFixtureSchedule(schedule.map(({id,date,time})=>({id,date:date||'',time:time==='TBD'?'':time||''})));setNotice('Fixture dates and kickoff times published to the NPL page.')}catch(error){setNotice(error.message)}finally{setBusy(false)}}return <section className="fixture-manager"><div className="fa-section-head"><div><small>NPL OPERATIONS · PUBLIC SCHEDULE</small><h2>Fixture dates & times</h2></div><button onClick={publish} disabled={busy}>{busy?'Publishing…':'Publish schedule'}</button></div><p className="fixture-help">Set the date and kickoff time for each league match. Changes appear publicly after publishing.</p><div className="fixture-admin-list">{schedule.map(match=><article key={match.id}><span>{String(match.id).padStart(2,'0')}</span><div><small>{match.round}</small><b>{match.home} <i>VS</i> {match.away}</b></div><label>Date<input type="date" value={match.date||''} onChange={e=>change(match.id,'date',e.target.value)}/></label><label>Kickoff<input type="time" value={match.time==='TBD'?'':match.time||''} onChange={e=>change(match.id,'time',e.target.value)}/></label></article>)}</div><button className="fixture-publish-mobile" onClick={publish} disabled={busy}>{busy?'Publishing…':'Publish all fixture times'}</button></section>}
 
 export default function AdminPanel({portal='admin'}){
+ const router=useRouter();
  const [user,setUser]=useState(undefined); const [claims,setClaims]=useState(null); const [section,setSection]=useState('Overview'); const [notice,setNotice]=useState(''); const [adminTeamId,setAdminTeamId]=useState('hunters-fc');
  useEffect(()=>onAuthStateChanged(auth,async next=>{setUser(next||null);setClaims(next?(await getIdTokenResult(next,true)).claims:null)}),[]);
  useEffect(()=>{if(claims?.role==='match_controller'){setAdminTeamId(current=>current==='hunters-fc'?teamOptions[1]:current);setSection(current=>current==='Overview'?'Live Match':current)}},[claims]);
+ useEffect(()=>{if(!claims?.role)return;if(portal==='admin'&&claims.role==='match_controller')router.replace('/match-control');if(portal==='match-control'&&claims.role!=='match_controller')router.replace('/admin')},[claims,portal,router]);
  if(user===undefined) return <AdminState title="Connecting to Firebase…"/>;
  if(!user) return <AdminLogin portal={portal}/>;
  const role=claims?.role; const teamId=claims?.teamId||'hunters-fc'; const isController=role==='match_controller'; const canManageMatches=role==='super_admin'||isController; const managedTeamId=(role==='super_admin'||isController)?adminTeamId:teamId;
- if((portal==='match-control'&&!isController)||(portal==='admin'&&isController)) return <AdminState title="Use the correct portal" text={isController?'Match-controller accounts sign in at /match-control.':'This login is reserved for match-controller accounts.'} action={<button onClick={()=>signOut(auth)}>Sign out</button>}/>;
+ if((portal==='match-control'&&!isController)||(portal==='admin'&&isController)) return <AdminState title="Opening your control panel…" text="Redirecting to the correct secure portal."/>;
  if(!['super_admin','team_admin','match_controller'].includes(role)) return <AdminState title="Access not assigned" text="This account does not have an active administration role." action={<button onClick={()=>signOut(auth)}>Sign out</button>}/>;
  const items=isController?['Squad','Formation','Fixtures','Live Match']:['Overview','Squad','Formation','Managers',...(role==='super_admin'?['Fixtures','Live Match','Team Admins']:[])];
  const mobileItems=items.filter(item=>item!=='Overview');
