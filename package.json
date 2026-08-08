@@ -1,0 +1,8 @@
+{
+  "name":"hunters-fc-functions",
+  "private":true,
+  "main":"index.js",
+  "engines":{"node":"22"},
+  "scripts":{"serve":"firebase emulators:start --only functions","deploy":"firebase deploy --only functions","bootstrap":"node scripts/set-super-admin.js","seed:hunters":"node scripts/seed-hunters-team.js"},
+  "dependencies":{"firebase-admin":"latest","firebase-functions":"latest"}
+}
