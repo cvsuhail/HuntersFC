@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
 import Link from 'next/link';
-import {groupFixtures,groups,teams,teamLogos} from './data';
+import {groupFixtures,groups,mergeTournamentSchedule,teams,teamLogos} from './data';
 import {watchFixtureSchedule,watchLiveMatch,watchTeam,watchTeams} from './firebaseData';
 
 const ids=['avengers-fc','atletico-fc','sporting-challengers','al-oyoun-fc','phoenix-united','sporting-legends','golden-falcon','black-wolves'];
@@ -21,6 +21,7 @@ function MatchCard({match,featured=false}){
       <strong>{match.status==='LIVE'||match.completed?<><i>{match.completed?'FULL TIME':'LIVE'}</i>{match.homeScore??0}<em>:</em>{match.awayScore??0}</>:<><small>{displayDate}<br/>{match.time||'TIME TBD'}</small><em>VS</em></>}</strong>
       <div><TeamLogo name={match.awayTeam||match.away}/><b>{match.awayTeam||match.away}</b></div>
     </div>
+    {match.completed&&Number(match.homeScore)===Number(match.awayScore)&&match.homePenalties!=null&&match.awayPenalties!=null&&<div className="lc-penalty-result"><span>PENALTIES</span><b>{match.homePenalties} — {match.awayPenalties}</b></div>}
     {Array.isArray(match.goals)&&match.goals.length>0&&<div className="lc-goal-timeline"><small>SCORING TIMELINE</small>{[...match.goals].sort((a,b)=>(a.minute||999)-(b.minute||999)).map(goal=><div className={goal.side} key={goal.id||`${goal.scorer}-${goal.minute}`}><span>{goal.type==='penalty'?'P':'⚽'}</span><p><b>{goal.scorer}</b><em>{goal.side==='home'?(match.homeTeam||match.home):(match.awayTeam||match.away)}{goal.type==='penalty'?' · PENALTY':''}</em></p><strong>{goal.minute?`${goal.minute}′`:'—'}</strong></div>)}</div>}
   </article>
 }
@@ -41,8 +42,8 @@ function QualificationPath(){return <section className="lc-qualification"><div c
 
 function FixturesView({fixtures}){
   const [group,setGroup]=useState('ALL');
-  const shown=group==='ALL'?fixtures:fixtures.filter(f=>f.round.startsWith(`Group ${group}`));
-  return <section className="lc-view"><div className="lc-page-title"><small>OFFICIAL LEAGUE SCHEDULE</small><h1>Fixtures.</h1><p>Each team plays every team in its group once. The top two teams in each points table advance to the semi-finals.</p></div><div className="lc-fixture-key"><span><i/> GROUP MATCH</span><span>3 pts win · 1 pt draw · 0 pts loss</span></div><div className="lc-filters">{['ALL','A','B'].map(x=><button className={group===x?'active':''} onClick={()=>setGroup(x)} key={x}>{x==='ALL'?'All 12 matches':`Group ${x}`}</button>)}</div><div className="lc-fixture-list">{shown.map(match=><MatchCard key={match.id} match={match}/>)}</div><QualificationPath/></section>
+  const shown=group==='ALL'?fixtures:group==='KO'?fixtures.filter(f=>Number(f.id)>12):fixtures.filter(f=>f.round.startsWith(`Group ${group}`));
+  return <section className="lc-view"><div className="lc-page-title"><small>OFFICIAL LEAGUE SCHEDULE</small><h1>Fixtures.</h1><p>Group standings automatically create the semifinals, followed by the final when both semifinal winners are known.</p></div><div className="lc-fixture-key"><span><i/> GROUP + KNOCKOUT</span><span>3 pts win · 1 pt draw · 0 pts loss</span></div><div className="lc-filters">{['ALL','A','B','KO'].map(x=><button className={group===x?'active':''} onClick={()=>setGroup(x)} key={x}>{x==='ALL'?`All ${fixtures.length} matches`:x==='KO'?'Knockout':`Group ${x}`}</button>)}</div><div className="lc-fixture-list">{shown.map(match=><MatchCard key={match.id} match={match}/>)}</div><QualificationPath/></section>
 }
 
 function calculateTable(fixtures=[],names=[],live){const rows=Object.fromEntries(names.map(name=>[name,{name,p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,live:false}]));const completed=fixtures.filter(match=>match?.completed&&Boolean(rows[match.home])&&Boolean(rows[match.away]));const liveActive=['LIVE','HALF TIME'].includes(live?.status)&&Boolean(rows[live?.homeTeam])&&Boolean(rows[live?.awayTeam])&&!completed.some(match=>match.home===live.homeTeam&&match.away===live.away);const matches=liveActive?[...completed,{home:live.homeTeam,away:live.away,homeScore:live.homeScore,awayScore:live.awayScore,provisional:true}]:completed;matches.forEach(match=>{const home=rows[match?.home],away=rows[match?.away];if(!home||!away)return;const hs=Math.max(0,Number(match.homeScore)||0),as=Math.max(0,Number(match.awayScore)||0);home.p++;away.p++;home.gf+=hs;home.ga+=as;away.gf+=as;away.ga+=hs;if(match.provisional){home.live=true;away.live=true}if(hs>as){home.w++;home.pts+=3;away.l++}else if(hs<as){away.w++;away.pts+=3;home.l++}else{home.d++;away.d++;home.pts++;away.pts++}});return Object.values(rows).map(row=>({...row,gd:row.gf-row.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name))}
@@ -84,7 +85,7 @@ function FormationView({selected,setSelected}){
 export default function NplExperience(){
   const [tab,setTab]=useState('home');const [live,setLive]=useState(null);const [selected,setSelected]=useState(0);const [fixtures,setFixtures]=useState(groupFixtures);
   useEffect(()=>watchLiveMatch(setLive,()=>{}),[]);
-  useEffect(()=>watchFixtureSchedule(remote=>{if(remote.length)setFixtures(groupFixtures.map(base=>({...base,...remote.find(item=>item.id===base.id)}))) }),[]);
+  useEffect(()=>watchFixtureSchedule(remote=>{if(remote.length)setFixtures(mergeTournamentSchedule(remote))}),[]);
   const openFormation=index=>{setSelected(index);setTab('formation');window.scrollTo({top:0,behavior:'smooth'})};
   const changeTab=next=>{setTab(next);window.scrollTo({top:0,behavior:'smooth'})};
   return <main className="league-app"><header className="lc-topbar"><Link href="/" aria-label="Back to Hunters FC">←</Link><div><img src="/assets/npl/nplLogo.png" alt=""/><span><small>NIRANNAPARAMBU</small><b>NPL SEASON 4</b></span></div><i>04</i></header><div className="lc-content">{tab==='home'&&<HomeView live={live} setTab={changeTab} fixtures={fixtures}/>} {tab==='fixtures'&&<FixturesView fixtures={fixtures}/>} {tab==='table'&&<TableView fixtures={fixtures} live={live}/>} {tab==='teams'&&<TeamsView openFormation={openFormation}/>} {tab==='formation'&&<FormationView selected={selected} setSelected={setSelected}/>}</div><nav className="lc-tabbar" aria-label="NPL sections">{tabs.map(([id,label])=><button key={id} className={tab===id?'active':''} onClick={()=>changeTab(id)}><i><TabIcon name={id}/></i><span>{label}</span></button>)}</nav></main>
