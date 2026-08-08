@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+functions/node_modules/
+
+# Next.js and build output
+.next/
+out/
+dist/
+build/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Firebase local state and logs
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+
+# Credentials and private keys
+service-account.json
+service-account*.json
+*.pem
+*.key
+
+# Test coverage and caches
+coverage/
+.turbo/
+.cache/
+*.tsbuildinfo
+
+# Editor and operating-system files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# General logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vercel
+.env*

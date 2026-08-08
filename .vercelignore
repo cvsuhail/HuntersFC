@@ -1,0 +1,15 @@
+# Firebase backend is deployed separately with Firebase CLI
+functions/
+firebase.json
+.firebaserc
+firestore.rules
+storage.rules
+service-account.json
+service-account*.json
+
+# Local and generated files
+.firebase/
+.next/
+node_modules/
+*.log
+.DS_Store

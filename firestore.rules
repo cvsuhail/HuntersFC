@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isSuperAdmin() { return signedIn() && request.auth.token.role == 'super_admin'; }
+    function isTeamAdmin(teamId) { return signedIn() && request.auth.token.role == 'team_admin' && request.auth.token.teamId == teamId; }
+
+    match /live/{document} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    match /tournaments/{document} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    match /club/{document} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (document == 'hunters-squad' && isTeamAdmin('hunters-fc'));
+    }
+
+    match /teams/{teamId} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || isTeamAdmin(teamId);
+      match /members/{memberId} {
+        allow read: if true;
+        allow write: if isSuperAdmin() || isTeamAdmin(teamId);
+      }
+    }
+
+    match /users/{userId} {
+      allow read: if isSuperAdmin() || (signedIn() && request.auth.uid == userId);
+      allow write: if false;
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if isSuperAdmin();
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSuperAdmin() { return request.auth != null && request.auth.token.role == 'super_admin'; }
+    function isTeamAdmin(teamId) { return request.auth != null && request.auth.token.role == 'team_admin' && request.auth.token.teamId == teamId; }
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+    match /teams/{teamId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || isTeamAdmin(teamId);
+    }
+  }
+}
