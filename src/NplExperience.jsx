@@ -20,7 +20,7 @@ function MatchCard({match,featured=false}){
     <header><span>{match.id?`MATCH ${String(match.id).padStart(2,'0')}`:match.status||'UPCOMING'}</span><small>{match.round||'NPL SEASON 4'}</small></header>
     <div className="lc-versus">
       <div><TeamLogo name={match.homeTeam||match.home}/><b>{match.homeTeam||match.home}</b></div>
-      <strong>{showScore?<><i>{match.completed||match.status==='FULL TIME'?'FULL TIME':match.status}</i>{match.homeScore??0}<em>:</em>{match.awayScore??0}</>:<><small>{displayDate}<br/>{match.time||'TIME TBD'}</small><em>VS</em></>}</strong>
+      <strong>{showScore?<><i>{match.completed||match.status==='FULL TIME'?'FULL TIME':match.status}</i>{match.homeScore??0}<em>:</em>{match.awayScore??0}</>:<><small>{displayDate}{match.time&&match.time!=='TBD'&&<><br/>{match.time}</>}</small><em>VS</em></>}</strong>
       <div><TeamLogo name={match.awayTeam||match.away}/><b>{match.awayTeam||match.away}</b></div>
     </div>
     {match.completed&&Number(match.homeScore)===Number(match.awayScore)&&match.homePenalties!=null&&match.awayPenalties!=null&&<div className="lc-penalty-result"><span>PENALTIES</span><b>{match.homePenalties} — {match.awayPenalties}</b></div>}
