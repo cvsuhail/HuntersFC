@@ -21,6 +21,7 @@ function MatchCard({match,featured=false}){
       <strong>{match.status==='LIVE'?<><i>LIVE</i>{match.homeScore??0}<em>:</em>{match.awayScore??0}</>:<><small>{displayDate}<br/>{match.time||'TIME TBD'}</small><em>VS</em></>}</strong>
       <div><TeamLogo name={match.awayTeam||match.away}/><b>{match.awayTeam||match.away}</b></div>
     </div>
+    {Array.isArray(match.goals)&&match.goals.length>0&&<div className="lc-goal-scorers">{match.goals.map(goal=><div className={goal.side} key={goal.id||`${goal.scorer}-${goal.minute}`}><span>⚽</span><b>{goal.scorer}</b><small>{goal.minute?`${goal.minute}′`:''}</small></div>)}</div>}
   </article>
 }
 
