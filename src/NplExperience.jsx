@@ -29,14 +29,18 @@ function MatchCard({match,featured=false}){
 }
 
 function HomeView({live,setTab,fixtures}){
+  const upcoming=fixtures.filter(match=>!match.completed);
+  const liveActive=live&&['LIVE','HALF TIME'].includes(live.status);
+  const featured=liveActive?live:upcoming[0];
+  const nextMatches=upcoming.filter(match=>String(match.id)!==String(featured?.fixtureId||featured?.id)).slice(0,3);
   return <>
     <section className="lc-welcome">
       <div><small>HUNTERS FC PRESENTS</small><h1>LEAGUE<br/><em>CENTER.</em></h1></div>
       <img className="lc-hero-logo" src="/assets/npl/nplLogo.png" alt="NPL logo"/><img className="lc-hero-type" src="/assets/npl/nplTyphography.png" alt="NPL typography"/>
     </section>
     <div className="lc-stat-strip"><div><b>08</b><span>TEAMS</span></div><div><b>12</b><span>GROUP FIXTURES</span></div><div><b>02</b><span>GROUPS</span></div></div>
-    <section className="lc-section"><div className="lc-heading"><div><small>MATCH CENTER</small><h2>{live?.status==='LIVE'?'Live now':'Featured match'}</h2></div><button onClick={()=>setTab('fixtures')}>All fixtures →</button></div><MatchCard featured match={live||{...fixtures[0],homeTeam:fixtures[0].home,awayTeam:fixtures[0].away,status:'UP NEXT'}}/></section>
-    <section className="lc-section"><div className="lc-heading"><div><small>NEXT ON THE PITCH</small><h2>Upcoming</h2></div></div><div className="lc-mini-list">{fixtures.slice(1,4).map(match=><MatchCard key={match.id} match={match}/>)}</div></section>
+    <section className="lc-section"><div className="lc-heading"><div><small>MATCH CENTER</small><h2>{liveActive?'Live now':'Featured match'}</h2></div><button onClick={()=>setTab('fixtures')}>All fixtures →</button></div>{featured?<MatchCard featured match={liveActive?featured:{...featured,status:'UP NEXT'}}/>:<div className="lc-empty compact"><b>ALL GAMES COMPLETED</b><p>No upcoming fixture is currently scheduled.</p></div>}</section>
+    <section className="lc-section"><div className="lc-heading"><div><small>NEXT ON THE PITCH</small><h2>Upcoming</h2></div></div>{nextMatches.length?<div className="lc-mini-list">{nextMatches.map(match=><MatchCard key={match.id} match={match}/>)}</div>:<div className="lc-empty compact"><b>NO UPCOMING GAMES</b><p>The next knockout round will appear after results are confirmed.</p></div>}</section>
   </>
 }
 
