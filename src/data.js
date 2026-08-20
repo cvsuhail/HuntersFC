@@ -46,3 +46,43 @@ export const members=[
  {initials:'AK',name:'Member name',role:'Club President'}, {initials:'MS',name:'Member name',role:'Club Secretary'},
  {initials:'FR',name:'Member name',role:'First Team Manager'}, {initials:'NA',name:'Member name',role:'Club Captain'}
 ];
+
+export const COMMITTEE_REVEAL_DATE = '2026-08-21T10:00:00+05:30';
+
+export const committee2026 = {
+    officers: [
+        { role: 'President', name: 'Sajil Master', image: '/Management/president-Sajil Master.png', key: 'president' },
+        { role: 'Secretary', name: 'Shamil Nirannaparambu', image: '/Management/Secretary-Shamil Nirannaparamb.png', key: 'secretary' },
+        { role: 'Treasurer', name: 'Dilshad K', image: '/Management/Treasurer-DIlshad K.png', key: 'treasurer' }
+    ],
+    vicePresidents: [
+        { role: 'Vice President', name: 'Umaid V', image: '/Management/vicePresident-Umaid V.png' },
+        { role: 'Vice President', name: 'Shibu', image: '/Management/vicePresident-Shibu.png' }
+    ],
+    jointSecretaries: [
+        { role: 'Joint Secretary', name: 'Muhanish V', image: '/Management/jointSecretary-Muhanish V.png' },
+        { role: 'Joint Secretary', name: 'Baputti CV', image: '/Management/jointSecretary-Baputti CV.png' }
+    ],
+    mediaWing: [
+        { role: 'Media Wing', name: 'Suhail CV', image: '/Management/mediaWing-Suhail CV.png' },
+        { role: 'Media Wing', name: 'Adilshan', image: '/Management/mediaWing-Adilshan.png' },
+        { role: 'Media Wing', name: 'Ishan Rahman', image: '/Management/mediaWing-IshanRahman.png' }
+    ],
+    teamManagers: [
+        { role: 'Team Manager', name: 'Ajmal CV', image: '/Management/teamManager-Ajmal CV.png' },
+        { role: 'Team Manager', name: 'Rahi', image: '/Management/teamManager-Rahi.png' }
+    ],
+    executives: [
+        { role: 'Executive', name: 'Razak', image: '/Management/Executive-Razak.png' },
+        { role: 'Executive', name: 'Suresh Babu', image: '/Management/Executive-Suresh Babu.png' },
+        { role: 'Executive', name: 'Askar', image: '/Management/Executive-Askar.png' },
+        { role: 'Executive', name: 'Shamjid', image: '/Management/Executive-Shamjid.png' },
+        { role: 'Executive', name: 'Usman', image: '/Management/Executive-Usman.png' },
+        { role: 'Executive', name: 'Rabi', image: '/Management/Executive-Rabi.png' },
+        { role: 'Executive', name: 'Noufal', image: '/Management/Executive-Noufal.png' },
+        { role: 'Executive', name: 'Anshif', image: '/Management/Executive-Anshif.png' },
+        { role: 'Executive', name: 'Nihal', image: '/Management/Executive-Nihal.png' },
+        { role: 'Executive', name: 'Akmal', image: '/Management/Executive-Akmal.png' }
+    ]
+};
+

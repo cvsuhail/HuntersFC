@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { fixtures, teams, teamLogos, standings, mainSponsors, awardSponsors } from './data';
+import { fixtures, teams, teamLogos, standings, mainSponsors, awardSponsors, COMMITTEE_REVEAL_DATE, committee2026 } from './data';
 import { watchHuntersSquad, watchLiveMatch } from './firebaseData';
 
 const Arrow = () => <span className="arrow" aria-hidden="true">↗</span>;
@@ -14,7 +14,31 @@ function Header() {
         <div className={`menu ${open ? 'show' : ''}`}><div className="menu-links">{[['/', 'Home'], ['/npl', 'NPL Season 4'], ['/#team', 'Team squad'], ['/#location', 'Club map'], ['/admin', 'Admin preview']].map(([to, label], i) => <Link style={{ '--i': i }} onClick={() => setOpen(false)} key={label} href={to}>{label}<span>0{i + 1}</span></Link>)}</div><div className="menu-foot">Nirannaparambu · Kerala · 679328</div></div>
     </>
 }
-function Reveal({ children, className = '' }) { return <div className={`reveal ${className}`}>{children}</div> }
+function Reveal({ children, className = '' }) {
+    const ref = React.useRef(null);
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        const checkVisibility = () => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight + 150 && rect.bottom > -100) {
+                el.classList.add('seen');
+            }
+        };
+        checkVisibility();
+        const ob = new IntersectionObserver(
+            es => es.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('seen');
+                }
+            }),
+            { threshold: 0.02 }
+        );
+        ob.observe(el);
+        return () => ob.disconnect();
+    }, []);
+    return <div ref={ref} className={`reveal ${className}`}>{children}</div>;
+}
 function Eyebrow({ children, dark = false }) { return <div className={`eyebrow ${dark ? 'eyebrow-dark' : ''}`}><i /> {children}</div> }
 const huntersFormation = [
     { name: 'Shamveel', role: 'Goal Keeper', pos: 'gk' },
@@ -25,11 +49,133 @@ const huntersFormation = [
     { name: 'Dilshad', role: 'Left Forward', pos: 'rw' },
     { name: 'Ajmal', role: 'Right Forward', pos: 'rf' }
 ];
+
+function CommitteeCard({ person, size = 'normal' }) {
+    return (
+        <article className={`committee-card ${size}`}>
+            <div className="committee-avatar-frame">
+                <img src={person.image} alt={person.name} loading="lazy" />
+                <div className="committee-role-badge"><span>{person.role}</span></div>
+            </div>
+            <div className="committee-card-info">
+                <h3>{person.name}</h3>
+            </div>
+        </article>
+    );
+}
+
+function CommitteeSection() {
+    const [activeTab, setActiveTab] = useState('all');
+
+    return (
+        <section id="management-committee" className="section committee-section paper">
+            <Reveal>
+                <div className="committee-header">
+                    <div className="eyebrow squad-label"><i /> OFFICIAL ANNOUNCEMENT</div>
+                    <div className="section-head">
+                        <h2>CLUB MANAGEMENT<br /><em>2026–2027.</em></h2>
+                        <span className="big-no">NPB</span>
+                    </div>
+                    <p className="committee-subtitle">
+                        Introducing the official leadership & executive committee behind Hunters FC for the 2026–2027 season.
+                    </p>
+                </div>
+
+                <div className="committee-tabs">
+                    <button className={activeTab === 'all' ? 'active' : ''} onClick={() => setActiveTab('all')}>All Roles ({22})</button>
+                    <button className={activeTab === 'officers' ? 'active' : ''} onClick={() => setActiveTab('officers')}>Officers</button>
+                    <button className={activeTab === 'vps' ? 'active' : ''} onClick={() => setActiveTab('vps')}>Vice Presidents & Secretaries</button>
+                    <button className={activeTab === 'wings' ? 'active' : ''} onClick={() => setActiveTab('wings')}>Media & Managers</button>
+                    <button className={activeTab === 'executives' ? 'active' : ''} onClick={() => setActiveTab('executives')}>Executives ({10})</button>
+                </div>
+
+                {(activeTab === 'all' || activeTab === 'officers') && (
+                    <div className="committee-group">
+                        <h3 className="committee-group-title">CLUB OFFICERS</h3>
+                        <div className="committee-officers-grid">
+                            {committee2026.officers.map(p => <CommitteeCard key={p.name} person={p} size="featured" />)}
+                        </div>
+                    </div>
+                )}
+
+                {(activeTab === 'all' || activeTab === 'vps') && (
+                    <div className="committee-group">
+                        <div className="committee-dual-row">
+                            <div className="committee-subgroup">
+                                <h3 className="committee-group-title">VICE PRESIDENTS</h3>
+                                <div className="committee-grid-2">
+                                    {committee2026.vicePresidents.map(p => <CommitteeCard key={p.name} person={p} />)}
+                                </div>
+                            </div>
+                            <div className="committee-subgroup">
+                                <h3 className="committee-group-title">JOINT SECRETARIES</h3>
+                                <div className="committee-grid-2">
+                                    {committee2026.jointSecretaries.map(p => <CommitteeCard key={p.name} person={p} />)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {(activeTab === 'all' || activeTab === 'wings') && (
+                    <div className="committee-group">
+                        <div className="committee-dual-row">
+                            <div className="committee-subgroup flex-3">
+                                <h3 className="committee-group-title">MEDIA WING</h3>
+                                <div className="committee-grid-3">
+                                    {committee2026.mediaWing.map(p => <CommitteeCard key={p.name} person={p} />)}
+                                </div>
+                            </div>
+                            <div className="committee-subgroup flex-2">
+                                <h3 className="committee-group-title">TEAM MANAGERS</h3>
+                                <div className="committee-grid-2">
+                                    {committee2026.teamManagers.map(p => <CommitteeCard key={p.name} person={p} />)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {(activeTab === 'all' || activeTab === 'executives') && (
+                    <div className="committee-group">
+                        <h3 className="committee-group-title">EXECUTIVE MEMBERS</h3>
+                        <div className="committee-executives-grid">
+                            {committee2026.executives.map(p => <CommitteeCard key={p.name} person={p} size="exec" />)}
+                        </div>
+                    </div>
+                )}
+            </Reveal>
+        </section>
+    );
+}
+
 export function Home() {
     return <main>
-        <section id="top" className="hero"><div className="hero-image" /><div className="hero-shade" /><img className="hero-crest" src="/assets/huntersFc/huntersFcLogo.png" alt="" /><div className="hero-copy"><Eyebrow>Hunters FC · NPB</Eyebrow><h1>MORE THAN<br /><em>FOOTBALL.</em></h1><p>A club built around passion, brotherhood and the community that made us.</p><div className="button-row"><Btn href="#team">Discover the club</Btn><Btn href="/npl" ghost>NPL Season 4</Btn></div></div><div className="hero-index"><span>EST.</span><b>NPB</b><span>KERALA</span></div><a className="scroll-cue" href="#npl-spotlight"><i /><span>SCROLL TO DISCOVER</span></a></section>
+
+        <section id="top" className="hero">
+            <div className="hero-image" />
+            <div className="hero-shade" />
+            <img className="hero-crest" src="/assets/huntersFc/huntersFcLogo.png" alt="" />
+            <div className="hero-copy">
+                <Eyebrow>Hunters FC · NPB</Eyebrow>
+                <h1>MORE THAN<br /><em>FOOTBALL.</em></h1>
+                <p>A club built around passion, brotherhood and the community that made us.</p>
+                <div className="button-row">
+                    <Btn href="#management-committee">Committee 2026-27</Btn>
+                    <Btn href="/npl" ghost>NPL Season 4</Btn>
+                </div>
+            </div>
+            <div className="hero-index"><span>EST.</span><b>NPB</b><span>KERALA</span></div>
+            <a className="scroll-cue" href="#management-committee"><i /><span>SCROLL TO DISCOVER</span></a>
+        </section>
         <div className="club-marquee" aria-label="Football, community, brotherhood and purpose"><div><span>FOOTBALL</span><i>✦</i><span>COMMUNITY</span><i>✦</i><span>BROTHERHOOD</span><i>✦</i><span>PURPOSE</span><i>✦</i><span>FOOTBALL</span><i>✦</i><span>COMMUNITY</span><i>✦</i></div></div>
+        
+        {/* Committee Section Under Hero */}
+        <CommitteeSection />
+
+
         <section id="npl-spotlight" className="npl-tease section"><div className="npl-card"><div className="npl-top"><Eyebrow>NPL · Season 04</Eyebrow><span className="pulse"><i /> HAPPENING TODAY</span></div><div className="npl-title"><img src="/assets/npl/nplLogo.png" alt="NPL Season 4 logo" /><div><strong>NPL</strong><span>04</span></div></div><div className="event-meta"><div><small>Saturday</small><b>08 AUG 2026</b></div><div><small>Kick off</small><b>7:00 PM</b></div><div><small>Venue</small><b>THRILLOX TURF</b></div></div><Btn href="/npl">Enter tournament</Btn></div></section>
+
         <section id="team" className="paper section team"><Reveal><div className="eyebrow squad-label"><i /> Team Squad</div><div className="section-head"><h2>THE<br /><em>HUNTERS.</em></h2><span className="big-no">7S</span></div><FormationPitch /></Reveal></section>
         <section id="location" className="paper section location"><div className="location-backdrop" aria-hidden="true">NPB</div><div className="location-layout"><div className="location-copy"><Eyebrow dark>Home ground</Eyebrow><h2>FROM NPB.<br /><em>FOR NPB.</em></h2><p className="location-lead">This is where the Hunters belong our football home in the heart of Nirannaparambu.</p><a className="btn dark-btn location-directions" href="https://maps.app.goo.gl/EVdD9biwy6PmWjAs6" target="_blank" rel="noreferrer">Get directions <Arrow /></a></div><div className="map-shell"><div className="map-label"><div><span><i /> HUNTERS FC HOME</span><b>11.156666° N · 76.215632° E</b></div><strong>NPB <em>679328</em></strong></div><div className="map-frame"><iframe title="Hunters FC satellite map" loading="lazy" src="https://maps.google.com/maps?q=11.156666,76.215632&amp;t=k&amp;z=17&amp;output=embed" /><div className="map-club-pin"><img src="/assets/huntersFc/huntersFcLogo.png" alt="" /><span><small>YOU'VE FOUND US</small><b>HUNTERS FC</b></span></div><a className="map-open" href="https://maps.app.goo.gl/EVdD9biwy6PmWjAs6" target="_blank" rel="noreferrer" aria-label="Open Hunters FC in Google Maps">↗</a></div><footer><span>SATELLITE MAP PREVIEW</span><b>WELCOME TO OUR HOME.</b></footer></div></div></section>
         <Footer /><ClubBottomNav />
