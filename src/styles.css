@@ -630,4 +630,737 @@ body:after{content:'';position:fixed;inset:0;pointer-events:none;z-index:20;opac
     }
 }
 
+/* NPL Game Completed & Champions Showcase Styles */
+.completed-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 30px;
+    background: var(--yellow);
+    color: #080908;
+    font: 800 11px var(--body);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(255, 212, 0, 0.25);
+    margin-bottom: 14px;
+}
+.trophy-gold {
+    font-size: 14px;
+}
+.npl-title-winners {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0 28px;
+}
+.npl-title-winners img {
+    width: 76px;
+    height: 86px;
+    object-fit: contain;
+}
+.npl-title-winners strong {
+    font: 900 clamp(42px, 12vw, 84px)/0.85 var(--display);
+    letter-spacing: -0.04em;
+    color: #fff;
+    display: block;
+}
+.npl-title-winners span {
+    font: 800 14px var(--display);
+    color: var(--yellow);
+    letter-spacing: 0.1em;
+    display: block;
+    margin-top: 4px;
+}
+
+.home-champions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0 28px;
+}
+.champion-mini-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 16px;
+    border: 1px solid rgba(255, 212, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+}
+.champion-mini-card.winner {
+    background: linear-gradient(145deg, rgba(255, 212, 0, 0.14), rgba(15, 16, 14, 0.9));
+    border-color: var(--yellow);
+}
+.champion-mini-card.runner {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(15, 16, 14, 0.9));
+    border-color: rgba(255, 255, 255, 0.25);
+}
+.champ-badge {
+    align-self: flex-start;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: var(--yellow);
+    color: #080908;
+    font: 800 9px var(--display);
+    letter-spacing: 0.08em;
+}
+.champ-badge.runner-tag {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+.champ-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.champ-info img {
+    width: 42px;
+    height: 48px;
+    object-fit: contain;
+}
+.champ-info b {
+    font: 800 18px/1 var(--display);
+    color: #fff;
+    text-transform: uppercase;
+    display: block;
+}
+.champ-info small {
+    font-size: 10px;
+    color: #a7a79f;
+    display: block;
+    margin-top: 2px;
+}
+.champ-mini-poster {
+    width: 100%;
+    aspect-ratio: 1.6;
+    object-fit: cover;
+    object-position: center 20%;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Main /npl Champions Showcase */
+.npl-champions-showcase {
+    padding-top: 50px;
+}
+.champions-showcase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-bottom: 50px;
+}
+.trophy-card {
+    background: #0d0e0c;
+    border-radius: 28px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: transform 0.4s ease, border-color 0.4s ease;
+}
+.trophy-card.winner-card {
+    background: radial-gradient(circle at 50% 0, rgba(255, 212, 0, 0.18), #0a0b09 70%);
+    border: 2px solid var(--yellow);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6), 0 0 35px rgba(255, 212, 0, 0.15);
+}
+.trophy-card.runner-card {
+    background: radial-gradient(circle at 50% 0, rgba(255, 255, 255, 0.12), #0a0b09 70%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.trophy-card:hover {
+    transform: translateY(-6px);
+}
+
+.trophy-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.trophy-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 14px;
+    border-radius: 20px;
+}
+.trophy-badge.winner-tag {
+    background: var(--yellow);
+    color: #080908;
+}
+.trophy-badge.winner-tag span {
+    font: 900 12px var(--display);
+}
+.trophy-badge.winner-tag small {
+    font: 700 8px var(--body);
+    letter-spacing: 0.1em;
+    opacity: 0.85;
+}
+.trophy-badge.runner-tag {
+    background: #cbd5e1;
+    color: #0f172a;
+}
+.trophy-badge.runner-tag span {
+    font: 900 12px var(--display);
+}
+.trophy-badge.runner-tag small {
+    font: 700 8px var(--body);
+    letter-spacing: 0.1em;
+    opacity: 0.85;
+}
+
+.team-header-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.team-badge-large {
+    width: 64px;
+    height: 72px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+}
+.team-header-info h2 {
+    font: 900 32px/0.95 var(--display);
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-transform: uppercase;
+    margin: 0;
+}
+.title-sub {
+    font-size: 11px;
+    color: var(--yellow);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 4px;
+}
+
+.poster-frame {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    aspect-ratio: 0.62;
+    background: #000;
+}
+.poster-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.6s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.poster-frame:hover img {
+    transform: scale(1.05);
+}
+.poster-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 50%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+.poster-frame:hover .poster-overlay {
+    opacity: 1;
+}
+.poster-overlay span {
+    font: 800 11px var(--body);
+    letter-spacing: 0.08em;
+    color: var(--yellow);
+    background: rgba(9, 10, 8, 0.85);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--yellow);
+    backdrop-filter: blur(8px);
+}
+
+/* Lightbox Modal */
+.npl-poster-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(25px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: modal-fade-in 0.3s ease;
+}
+@keyframes modal-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.modal-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.modal-content img {
+    max-width: 100%;
+    max-height: 82vh;
+    object-fit: contain;
+    border-radius: 16px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8);
+    border: 2px solid var(--yellow);
+}
+.modal-close {
+    position: absolute;
+    top: -45px;
+    right: 0;
+    border: 0;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+.modal-close:hover {
+    background: var(--yellow);
+    color: #111;
+}
+.modal-caption {
+    margin-top: 14px;
+    font: 700 13px var(--body);
+    color: var(--yellow);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+@media(max-width: 767px) {
+    .npl-page .lc-topbar {
+        height: 56px;
+        padding: 6px 12px;
+    }
+    .npl-page .lc-topbar a, .npl-page .lc-topbar i {
+        width: 36px;
+        height: 36px;
+    }
+    .npl-hero {
+        min-height: auto !important;
+        padding-top: 20px !important;
+        padding-bottom: 24px !important;
+    }
+    .npl-official-logo {
+        top: 15px;
+        right: 12px;
+        width: 60px;
+        height: 68px;
+        margin-bottom: 8px;
+        opacity: 0.25;
+    }
+    .completed-pill {
+        font-size: 9.5px;
+        padding: 6px 14px;
+        box-shadow: 0 4px 18px rgba(255, 212, 0, 0.35);
+        margin-bottom: 8px;
+    }
+    .npl-hero-copy h1 {
+        font-size: clamp(38px, 12vw, 56px);
+        margin: 12px 0 16px !important;
+    }
+    .npl-hero-copy p {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
+    .npl-type-art {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        width: 140px;
+        margin-top: 14px;
+    }
+    .npl-champions-showcase {
+        padding-top: 20px;
+    }
+    .home-champions-grid, .champions-showcase-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    .npl-title-winners img {
+        width: 55px;
+        height: 62px;
+    }
+    .trophy-card {
+        padding: 20px 16px;
+        border-radius: 24px;
+    }
+    .trophy-card.winner-card {
+        background: radial-gradient(circle at 50% 0, rgba(255, 212, 0, 0.22), #080907 80%);
+        border: 2px solid var(--yellow);
+        box-shadow: 0 15px 45px rgba(255, 212, 0, 0.25), 0 0 25px rgba(255, 212, 0, 0.15);
+    }
+    .trophy-card.runner-card {
+        background: radial-gradient(circle at 50% 0, rgba(255, 255, 255, 0.14), #080907 80%);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+    }
+    .poster-frame {
+        aspect-ratio: 0.65;
+        border-radius: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.16);
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7);
+    }
+    .team-badge-large {
+        width: 54px;
+        height: 62px;
+        filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+    }
+    .team-header-info h2 {
+        font-size: 26px;
+        line-height: 0.95;
+    }
+    .title-sub {
+        font-size: 10px;
+    }
+    .poster-overlay span {
+        font-size: 10.5px;
+        padding: 7px 14px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+}
+
+/* August 15 Independence Day Celebration Section & Reel Player */
+.independence-section {
+    background: #090a08;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    padding-top: 80px;
+    padding-bottom: 90px;
+    border-top: 3px solid;
+    border-image: linear-gradient(90deg, #ff9933 0%, #ffffff 50%, #138808 100%) 1;
+}
+.independence-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 45px;
+    align-items: center;
+}
+.tricolor-eyebrow span {
+    color: var(--yellow);
+    font-weight: 800;
+}
+.independence-copy h2 {
+    font: 900 clamp(52px, 14vw, 110px)/0.8 var(--display);
+    letter-spacing: -0.04em;
+    margin: 16px 0;
+    text-transform: uppercase;
+}
+.independence-copy h2 em {
+    font-style: italic;
+    color: var(--yellow);
+}
+.independence-lead {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #c9c9c3;
+    max-width: 580px;
+    margin-bottom: 24px;
+}
+.independence-meta-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+.independence-meta-tags span {
+    font: 700 10px var(--body);
+    letter-spacing: 0.08em;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+.ind-btn {
+    background: var(--yellow);
+    color: #080908;
+    border: 0;
+    cursor: pointer;
+}
+
+/* Inline Reel Frame Mockup */
+.reel-inline-shell {
+    position: relative;
+    border-radius: 28px;
+    background: #111310;
+    border: 2px solid rgba(255, 212, 0, 0.3);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 212, 0, 0.1);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.4s ease, border-color 0.4s ease;
+}
+.reel-inline-shell:hover {
+    transform: translateY(-6px);
+    border-color: var(--yellow);
+}
+.reel-badge {
+    padding: 10px 14px;
+    background: rgba(8, 9, 8, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font: 800 9px var(--body);
+    letter-spacing: 0.1em;
+    color: var(--yellow);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.reel-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ff5252;
+    box-shadow: 0 0 8px #ff5252;
+}
+.reel-frame-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 0.58;
+    background: #000;
+}
+.reel-frame-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    pointer-events: none; /* Allows click through to overlay */
+}
+.reel-click-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 60%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #fff;
+    transition: background 0.3s ease;
+}
+.reel-inline-shell:hover .reel-click-overlay {
+    background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%);
+}
+.play-icon-circle {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--yellow);
+    color: #080908;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 25px rgba(255, 212, 0, 0.4);
+    transition: transform 0.3s ease;
+}
+.play-icon-circle svg {
+    width: 26px;
+    height: 26px;
+    margin-left: 3px;
+}
+.reel-inline-shell:hover .play-icon-circle {
+    transform: scale(1.12);
+}
+.reel-click-overlay span {
+    font: 800 11px var(--body);
+    letter-spacing: 0.08em;
+    color: var(--yellow);
+    background: rgba(9, 10, 8, 0.9);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--yellow);
+}
+
+/* Fullscreen Reel Modal */
+.reel-fullscreen-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.94);
+    backdrop-filter: blur(25px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: modal-fade-in 0.3s ease;
+}
+.reel-fullscreen-modal .modal-inner {
+    position: relative;
+    width: min(94vw, 440px);
+    max-height: 94vh;
+    background: #0d0f0c;
+    border-radius: 28px;
+    border: 2px solid var(--yellow);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.9), 0 0 40px rgba(255,212,0,0.2);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+}
+.modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    border: 0;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: background 0.2s ease;
+}
+.modal-close-btn:hover {
+    background: var(--yellow);
+    color: #111;
+}
+.modal-reel-header h3 {
+    font: 800 20px/1.1 var(--display);
+    color: #fff;
+    margin: 4px 0 0;
+    text-transform: uppercase;
+}
+.modal-iframe-container {
+    width: 100%;
+    aspect-ratio: 0.62;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.modal-iframe-container iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+.modal-insta-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 46px;
+}
+
+@media(max-width: 900px) {
+    .independence-container {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+    .reel-inline-shell {
+        max-width: 380px;
+        margin: 0 auto;
+    }
+}
+
+/* Home Champions Logos Only View */
+.home-champions-logos-only {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0 28px;
+}
+.champion-logo-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid rgba(255, 212, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.champion-logo-card.winner {
+    background: linear-gradient(145deg, rgba(255, 212, 0, 0.16), rgba(15, 16, 14, 0.95));
+    border-color: var(--yellow);
+    box-shadow: 0 10px 30px rgba(255, 212, 0, 0.1);
+}
+.champion-logo-card.runner {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(15, 16, 14, 0.95));
+    border-color: rgba(255, 255, 255, 0.25);
+}
+.champ-logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.champ-logo-wrap img {
+    width: 58px;
+    height: 66px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
+}
+.champ-logo-wrap b {
+    font: 900 22px/1 var(--display);
+    color: #fff;
+    text-transform: uppercase;
+    display: block;
+}
+.champ-logo-wrap small {
+    font-size: 11px;
+    color: var(--yellow);
+    letter-spacing: 0.05em;
+    display: block;
+    margin-top: 4px;
+}
+
+/* Local Video Element Styling */
+.inline-local-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.modal-video-container {
+    width: 100%;
+    aspect-ratio: 0.58;
+    max-height: 70vh;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.modal-local-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+@media(max-width: 767px) {
+    .home-champions-logos-only {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .champ-logo-wrap img {
+        width: 46px;
+        height: 52px;
+    }
+    .champ-logo-wrap b {
+        font-size: 18px;
+    }
+}
+
+
+
+
 

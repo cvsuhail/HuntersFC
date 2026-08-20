@@ -149,6 +149,163 @@ function CommitteeSection() {
     );
 }
 
+function ConfettiCanvas() {
+    useEffect(() => {
+        const canvas = document.getElementById('npl-confetti-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        const handleResize = () => {
+            if (!canvas) return;
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', handleResize);
+
+        const colors = ['#ffd400', '#ffffff', '#e2b900', '#ff5252', '#34d399', '#38bdf8'];
+        const particles = Array.from({ length: 60 }).map(() => ({
+            x: Math.random() * width,
+            y: Math.random() * height - height,
+            r: Math.random() * 6 + 3,
+            d: Math.random() * 60 + 10,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            tilt: Math.random() * 10 - 10,
+            tiltAngleIncremental: Math.random() * 0.07 + 0.05,
+            tiltAngle: 0
+        }));
+
+        let animationFrameId;
+        const draw = () => {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach((p, i) => {
+                p.tiltAngle += p.tiltAngleIncremental;
+                p.y += (Math.cos(p.d) + 2 + p.r / 2) / 1.2;
+                p.tilt = Math.sin(p.tiltAngle) * 15;
+
+                if (p.y > height) {
+                    particles[i] = {
+                        x: Math.random() * width,
+                        y: -20,
+                        r: p.r,
+                        d: p.d,
+                        color: p.color,
+                        tilt: p.tilt,
+                        tiltAngleIncremental: p.tiltAngleIncremental,
+                        tiltAngle: p.tiltAngle
+                    };
+                }
+
+                ctx.beginPath();
+                ctx.lineWidth = p.r;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                ctx.stroke();
+            });
+            animationFrameId = requestAnimationFrame(draw);
+        };
+        draw();
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, []);
+
+    return (
+        <canvas
+            id="npl-confetti-canvas"
+            style={{
+                position: 'fixed',
+                inset: 0,
+                pointerEvents: 'none',
+                zIndex: 99
+            }}
+        />
+    );
+}
+
+function IndependenceDaySection() {
+    const [fullScreenModal, setFullScreenModal] = useState(false);
+
+    return (
+        <section id="independence-day" className="section independence-section">
+            <Reveal>
+                <div className="independence-container">
+                    <div className="independence-copy">
+                        <div className="eyebrow tricolor-eyebrow">
+                            <span>🇮🇳 15 AUGUST</span> · INDEPENDENCE DAY CELEBRATION
+                        </div>
+                        <h2>HUNTERS FC<br /><em>AUGUST 15.</em></h2>
+                        <p className="independence-lead">
+                            Celebrating freedom, unity, and brotherhood! Hunters FC Nirannaparambu came together on August 15th for our annual Independence Day celebration, sports, and community festivities.
+                        </p>
+                        <div className="independence-meta-tags">
+                            <span>🇮🇳 Flag Hoisting</span>
+                            <span>⚽ Sports Meet</span>
+                            <span>🤝 Community Unity</span>
+                        </div>
+                        <button className="btn ind-btn" onClick={() => setFullScreenModal(true)}>
+                            <span>🔊 Watch Video Full Screen with Sound</span>
+                            <Arrow />
+                        </button>
+                    </div>
+
+                    {/* Inline Auto-playing Muted Video Frame */}
+                    <div className="reel-inline-shell" onClick={() => setFullScreenModal(true)}>
+                        <div className="reel-badge">
+                            <span className="reel-pulse" /> TAP FOR FULLSCREEN WITH SOUND 🔊
+                        </div>
+                        <div className="reel-frame-wrapper">
+                            <video
+                                src="/videos/independenceDay2026.mp4"
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                className="inline-local-video"
+                            />
+                            <div className="reel-click-overlay">
+                                <div className="play-icon-circle">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z" />
+                                    </svg>
+                                </div>
+                                <span>Click for Fullscreen & Sound</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Reveal>
+
+            {/* Fullscreen Video Modal */}
+            {fullScreenModal && (
+                <div className="reel-fullscreen-modal" onClick={() => setFullScreenModal(false)}>
+                    <div className="modal-inner video-modal-inner" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close-btn" onClick={() => setFullScreenModal(false)}>✕</button>
+                        <div className="modal-reel-header">
+                            <div className="eyebrow">🇮🇳 HUNTERS FC AUGUST 15</div>
+                            <h3>Independence Day Celebration 2026</h3>
+                        </div>
+                        <div className="modal-video-container">
+                            <video
+                                src="/videos/independenceDay2026.mp4"
+                                autoPlay
+                                loop
+                                controls
+                                playsInline
+                                className="modal-local-video"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+        </section>
+    );
+}
+
 export function Home() {
     return <main>
 
@@ -173,8 +330,52 @@ export function Home() {
         {/* Committee Section Under Hero */}
         <CommitteeSection />
 
+        {/* August 15 Independence Day Celebration Section */}
+        <IndependenceDaySection />
 
-        <section id="npl-spotlight" className="npl-tease section"><div className="npl-card"><div className="npl-top"><Eyebrow>NPL · Season 04</Eyebrow><span className="pulse"><i /> HAPPENING TODAY</span></div><div className="npl-title"><img src="/assets/npl/nplLogo.png" alt="NPL Season 4 logo" /><div><strong>NPL</strong><span>04</span></div></div><div className="event-meta"><div><small>Saturday</small><b>08 AUG 2026</b></div><div><small>Kick off</small><b>7:00 PM</b></div><div><small>Venue</small><b>THRILLOX TURF</b></div></div><Btn href="/npl">Enter tournament</Btn></div></section>
+        <section id="npl-spotlight" className="npl-tease section">
+            <div className="npl-card winners-spotlight-card">
+                <div className="npl-top">
+                    <Eyebrow>NPL · Season 04</Eyebrow>
+                    <span className="pulse trophy-pill"><i /> GAME COMPLETED</span>
+                </div>
+                <div className="npl-title-winners">
+                    <img src="/assets/npl/nplLogo.png" alt="NPL Season 4 logo" />
+                    <div>
+                        <strong>GAME COMPLETED</strong>
+                        <span>SEASON 04 CHAMPIONS</span>
+                    </div>
+                </div>
+                
+                {/* Logos only on homepage NPL spotlight */}
+                <div className="home-champions-logos-only">
+                    <div className="champion-logo-card winner">
+                        <div className="champ-badge">🏆 WINNERS</div>
+                        <div className="champ-logo-wrap">
+                            <img src="/assets/npl/team/goldenFalconFC.png" alt="Golden Falcon" />
+                            <div>
+                                <b>GOLDEN FALCON</b>
+                                <small>NPL Season 4 Champions</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="champion-logo-card runner">
+                        <div className="champ-badge runner-tag">🥈 RUNNERS UP</div>
+                        <div className="champ-logo-wrap">
+                            <img src="/assets/npl/team/AtleticoFC.png" alt="Atletico FC" />
+                            <div>
+                                <b>ATLETICO FC</b>
+                                <small>NPL Season 4 Finalist</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <Btn href="/npl">View Champions Wall & Posters</Btn>
+            </div>
+        </section>
+
 
         <section id="team" className="paper section team"><Reveal><div className="eyebrow squad-label"><i /> Team Squad</div><div className="section-head"><h2>THE<br /><em>HUNTERS.</em></h2><span className="big-no">7S</span></div><FormationPitch /></Reveal></section>
         <section id="location" className="paper section location"><div className="location-backdrop" aria-hidden="true">NPB</div><div className="location-layout"><div className="location-copy"><Eyebrow dark>Home ground</Eyebrow><h2>FROM NPB.<br /><em>FOR NPB.</em></h2><p className="location-lead">This is where the Hunters belong our football home in the heart of Nirannaparambu.</p><a className="btn dark-btn location-directions" href="https://maps.app.goo.gl/EVdD9biwy6PmWjAs6" target="_blank" rel="noreferrer">Get directions <Arrow /></a></div><div className="map-shell"><div className="map-label"><div><span><i /> HUNTERS FC HOME</span><b>11.156666° N · 76.215632° E</b></div><strong>NPB <em>679328</em></strong></div><div className="map-frame"><iframe title="Hunters FC satellite map" loading="lazy" src="https://maps.google.com/maps?q=11.156666,76.215632&amp;t=k&amp;z=17&amp;output=embed" /><div className="map-club-pin"><img src="/assets/huntersFc/huntersFcLogo.png" alt="" /><span><small>YOU'VE FOUND US</small><b>HUNTERS FC</b></span></div><a className="map-open" href="https://maps.app.goo.gl/EVdD9biwy6PmWjAs6" target="_blank" rel="noreferrer" aria-label="Open Hunters FC in Google Maps">↗</a></div><footer><span>SATELLITE MAP PREVIEW</span><b>WELCOME TO OUR HOME.</b></footer></div></div></section>
@@ -187,15 +388,111 @@ function ClubNavIcon({ name }) { const paths = { home: <><path d="M3 10.5 12 3l9
 function ClubBottomNav() { return <nav className="club-bottom-nav" aria-label="Mobile club navigation"><a className="active" href="#top"><i><ClubNavIcon name="home" /></i><span>Home</span></a><a href="#team"><i><ClubNavIcon name="squad" /></i><span>Squad</span></a><a href="#location"><i><ClubNavIcon name="join" /></i><span>Map</span></a><Link href="/npl"><i><ClubNavIcon name="npl" /></i><span>NPL</span></Link><button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><i><ClubNavIcon name="top" /></i><span>Top</span></button></nav> }
 
 export function Npl() {
-    const [liveMatch, setLiveMatch] = useState(null); useEffect(() => watchLiveMatch(setLiveMatch, () => { }), []); const publicMatch = liveMatch || { homeTeam: "Avengers FC", awayTeam: "Atletico FC", homeScore: 0, awayScore: 0, status: "UP NEXT", minute: 0 }; const homeIndex = Math.max(0, teams.indexOf(publicMatch.homeTeam)); const awayIndex = Math.max(0, teams.indexOf(publicMatch.awayTeam)); return <main className="npl-page"><section className="npl-hero"><div className="npl-grid" /><div className="npl-crest-wall" aria-hidden="true">{teamLogos.map((logo, i) => <img src={logo} alt="" key={logo} style={{ '--crest': i }} />)}</div><img className="npl-official-logo" src="/assets/npl/nplLogo.png" alt="Nirannaparambu Premier League Season 4" /><div className="npl-hero-copy"><Eyebrow>Nirannaparambu Premier League</Eyebrow><div className="live-pill"><i /> HAPPENING TODAY</div><h1>NPL<span>04</span></h1><p>Eight teams. One night. One champion.</p><div className="event-line"><b>08 AUG 2026</b><span>7:00 PM ONWARDS</span><span>THRILLOX FOOTBALL TURF · WANDOOR</span></div><div className="npl-hero-actions"><a href="#fixtures">Explore fixtures <Arrow /></a><a href="#teams">Meet the teams <Arrow /></a></div><img className="npl-type-art" src="/assets/npl/nplTyphography.png" alt="NPL Season 4 Malayalam typography" /></div></section>
-        <div className="npl-marquee" aria-label="NPL Season 4 teams"><div>{teams.concat(teams).map((team, i) => <React.Fragment key={`${team}-${i}`}><span>{team}</span><i>✦</i></React.Fragment>)}</div></div>
-        <NplNav /><section className="npl-content section"><div className="tournament-numbers"><article><small>TEAMS</small><b>08</b><span>One trophy</span></article><article><small>MATCHES</small><b>15</b><span>One night</span></article><article><small>SEASON</small><b>04</b><span>The legacy grows</span></article></div><div className={`match-feature ${publicMatch.status === 'LIVE' ? 'is-live' : ''}`}><div className="match-glow" /><div className="match-label"><span>{publicMatch.status}</span><small>{publicMatch.status === 'LIVE' ? `${publicMatch.minute || 0}' · LIVE FROM WANDOOR` : 'GROUP A · MATCH 01'}</small></div><div className="score"><div><TeamBadge n={homeIndex} /><b>{publicMatch.homeTeam}</b></div><strong><small>{publicMatch.status === 'LIVE' ? `${publicMatch.minute || 0}'` : '7:00'}</small>{['LIVE', 'HALF TIME', 'FULL TIME'].includes(publicMatch.status) ? `${publicMatch.homeScore} — ${publicMatch.awayScore}` : 'VS'}</strong><div><TeamBadge n={awayIndex} /><b>{publicMatch.awayTeam}</b></div></div><button>Match centre <Arrow /></button></div>
-            <Block id="fixtures" title="TODAY'S FIXTURES" aside="3 MATCHES"><div className="fixture-scroll">{fixtures.map((f, i) => <Fixture f={f} key={i} />)}</div></Block>
-            <Block id="standings" title="GROUP A" aside="STANDINGS"><div className="table"><div className="tr th"><span># TEAM</span><span>P</span><span>GD</span><span>PTS</span></div>{standings.map((r, i) => <div className="tr" key={r[0]}><span><b>{i + 1}</b><TeamBadge n={i} />{r[0]}</span><span>{r[1]}</span><span>0</span><strong>{r[2]}</strong></div>)}</div></Block>
-            <Block id="teams" title="THE EIGHT" aside="TEAMS"><div className="team-scroll">{teams.map((t, i) => <article key={t}><TeamBadge n={i} /><small>TEAM 0{i + 1}</small><h3>{t}</h3><span>View squad ↗</span></article>)}</div></Block>
-            <Block id="knockout" title="ROAD TO THE FINAL" aside="KNOCKOUT"><div className="bracket"><div><small>QUARTER FINALS</small><b>8 TEAMS</b></div><i>→</i><div><small>SEMI FINALS</small><b>4 TEAMS</b></div><i>→</i><div><small>FINAL</small><b>2 TEAMS</b></div><i>→</i><div className="champ"><small>CHAMPION</small><b>01</b></div></div></Block>
-            <SponsorShowcase />
-        </section><Footer /><div className="bottom-nav"><a href="#">Today</a><a href="#fixtures">Fixtures</a><a href="#standings">Table</a><a href="#teams">Teams</a><a href="#knockout">More</a></div></main>
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    return (
+        <main className="npl-page">
+            <ConfettiCanvas />
+            
+            {/* Modal Lightbox for Poster */}
+            {selectedImage && (
+                <div className="npl-poster-modal" onClick={() => setSelectedImage(null)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close" onClick={() => setSelectedImage(null)}>✕</button>
+                        <img src={selectedImage.src} alt={selectedImage.alt} />
+                        <div className="modal-caption">{selectedImage.caption}</div>
+                    </div>
+                </div>
+            )}
+
+            <section className="npl-hero">
+                <div className="npl-grid" />
+                <div className="npl-crest-wall" aria-hidden="true">
+                    {teamLogos.map((logo, i) => <img src={logo} alt="" key={logo} style={{ '--crest': i }} />)}
+                </div>
+                <img className="npl-official-logo" src="/assets/npl/nplLogo.png" alt="Nirannaparambu Premier League Season 4" />
+                <div className="npl-hero-copy">
+                    <Eyebrow>Nirannaparambu Premier League</Eyebrow>
+                    <div className="completed-pill">
+                        <span className="trophy-gold">🏆</span> GAME COMPLETED · NPL SEASON 04
+                    </div>
+                    <h1>CHAMPIONS<span>04</span></h1>
+                    <p>Congratulations to NPL Season 4 Winners Golden Falcon & Runners-Up Atletico FC!</p>
+                    <div className="event-line">
+                        <b>08 AUG 2026</b>
+                        <span>THRILLOX FOOTBALL TURF · WANDOOR</span>
+                    </div>
+                    <img className="npl-type-art" src="/assets/npl/nplTyphography.png" alt="NPL Season 4 Malayalam typography" />
+                </div>
+            </section>
+
+            <div className="npl-marquee" aria-label="NPL Season 4 Champions">
+                <div>
+                    <span>🏆 GOLDEN FALCON — NPL 04 CHAMPIONS</span><i>✦</i>
+                    <span>🥈 ATLETICO FC — RUNNERS UP</span><i>✦</i>
+                    <span>🏆 GOLDEN FALCON — NPL 04 CHAMPIONS</span><i>✦</i>
+                    <span>🥈 ATLETICO FC — RUNNERS UP</span><i>✦</i>
+                </div>
+            </div>
+
+            {/* Showcase Winners & Runners Section */}
+            <section className="npl-content section npl-champions-showcase">
+                <div className="champions-showcase-grid">
+                    {/* WINNERS CARD */}
+                    <article className="trophy-card winner-card">
+                        <div className="trophy-card-header">
+                            <div className="trophy-badge winner-tag">
+                                <span>🏆 WINNERS</span>
+                                <small>NPL SEASON 04 CHAMPIONS</small>
+                            </div>
+                            <div className="team-header-info">
+                                <img src="/assets/npl/team/goldenFalconFC.png" alt="Golden Falcon" className="team-badge-large" />
+                                <div>
+                                    <h2>GOLDEN FALCON</h2>
+                                    <span className="title-sub">NPL Season 4 Champions</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="poster-frame" onClick={() => setSelectedImage({ src: '/assets/npl/nplWinners.jpg', alt: 'Golden Falcon NPL Winners', caption: '🏆 Golden Falcon — NPL Season 04 Winners Poster' })}>
+                            <img src="/assets/npl/nplWinners.jpg" alt="Golden Falcon NPL Winners Poster" />
+                            <div className="poster-overlay">
+                                <span>🔍 Click / Tap to Expand Poster</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    {/* RUNNERS UP CARD */}
+                    <article className="trophy-card runner-card">
+                        <div className="trophy-card-header">
+                            <div className="trophy-badge runner-tag">
+                                <span>🥈 RUNNERS UP</span>
+                                <small>NPL SEASON 04 FINALIST</small>
+                            </div>
+                            <div className="team-header-info">
+                                <img src="/assets/npl/team/AtleticoFC.png" alt="Atletico FC" className="team-badge-large" />
+                                <div>
+                                    <h2>ATLETICO FC</h2>
+                                    <span className="title-sub">NPL Season 4 Runners Up</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="poster-frame" onClick={() => setSelectedImage({ src: '/assets/npl/nplRunners.jpg', alt: 'Atletico FC NPL Runners Up', caption: '🥈 Atletico FC — NPL Season 04 Runners Up Poster' })}>
+                            <img src="/assets/npl/nplRunners.jpg" alt="Atletico FC NPL Runners Up Poster" />
+                            <div className="poster-overlay">
+                                <span>🔍 Click / Tap to Expand Poster</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <SponsorShowcase />
+            </section>
+
+            <Footer />
+        </main>
+    );
 }
 function NplNav() { return <nav className="npl-nav"><a href="#">Overview</a><a href="#fixtures">Fixtures</a><a href="#standings">Standings</a><a href="#teams">Teams</a></nav> }
 function TeamBadge({ n = 0 }) { return <span className="team-badge"><img src={teamLogos[n]} alt={`${teams[n]} logo`} /></span> }

@@ -1,98 +1,271 @@
 'use client';
-import {useEffect,useMemo,useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import {groupFixtures,groups,mergeTournamentSchedule,teams,teamLogos} from './data';
-import {watchFixtureSchedule,watchLiveMatch,watchTeam,watchTeams} from './firebaseData';
+import { teamLogos, mainSponsors, awardSponsors } from './data';
 
-const ids=['avengers-fc','atletico-fc','sporting-challengers','al-oyoun-fc','phoenix-united','sporting-legends','golden-falcon','black-wolves'];
-const tabs=[['home','Home'],['fixtures','Fixtures'],['table','Table'],['teams','Teams'],['formation','Formation']];
-const logoFor=name=>teamLogos[Math.max(0,teams.indexOf(name))];
+function ConfettiCanvas() {
+    useEffect(() => {
+        const canvas = document.getElementById('npl-confetti-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
 
-function TabIcon({name}){const paths={home:<><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5M9 21v-7h6v7"/></>,fixtures:<><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></>,table:<><path d="M5 5h14M5 10h14M5 15h14M5 20h14"/><path d="M9 5v15M16 5v15"/></>,teams:<><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3.5 20c.4-4 2.2-6 5.5-6s5.1 2 5.5 6M14 15c3.8-.7 6 1.1 6.5 4.5"/></>,formation:<><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v6.5M12 14.5V21M3 12h6.5M14.5 12H21"/></>};return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>}
+        const handleResize = () => {
+            if (!canvas) return;
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', handleResize);
 
-function TeamLogo({name}){return <img className={`lc-team-logo${name==='Atletico FC'?' lc-team-logo-white':''}`} src={logoFor(name)} alt={`${name} crest`}/>}
+        const colors = ['#ffd400', '#ffffff', '#e2b900', '#ff5252', '#34d399', '#38bdf8'];
+        const particles = Array.from({ length: 70 }).map(() => ({
+            x: Math.random() * width,
+            y: Math.random() * height - height,
+            r: Math.random() * 6 + 3,
+            d: Math.random() * 60 + 10,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            tilt: Math.random() * 10 - 10,
+            tiltAngleIncremental: Math.random() * 0.07 + 0.05,
+            tiltAngle: 0
+        }));
 
-function MatchCard({match,featured=false}){
-  const displayDate=match.date?new Date(`${match.date}T00:00:00`).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'DATE TBD';
-  const showScore=match.completed||['LIVE','HALF TIME','FULL TIME'].includes(match.status);
-  const goals=Array.isArray(match.goals)?[...match.goals].sort((a,b)=>(a.minute||999)-(b.minute||999)):[];
-  return <article className={`lc-match-card ${featured?'featured':''}`}>
-    <header><span>{match.id?`MATCH ${String(match.id).padStart(2,'0')}`:match.status||'UPCOMING'}</span><small>{match.round||'NPL SEASON 4'}</small></header>
-    <div className="lc-versus">
-      <div><TeamLogo name={match.homeTeam||match.home}/><b>{match.homeTeam||match.home}</b></div>
-      <strong>{showScore?<><i>{match.completed||match.status==='FULL TIME'?'FULL TIME':match.status}</i>{match.homeScore??0}<em>:</em>{match.awayScore??0}</>:<><small>{displayDate}{match.time&&match.time!=='TBD'&&<><br/>{match.time}</>}</small><em>VS</em></>}</strong>
-      <div><TeamLogo name={match.awayTeam||match.away}/><b>{match.awayTeam||match.away}</b></div>
-    </div>
-    {match.completed&&Number(match.homeScore)===Number(match.awayScore)&&match.homePenalties!=null&&match.awayPenalties!=null&&<div className="lc-penalty-result"><span>PENALTIES</span><b>{match.homePenalties} — {match.awayPenalties}</b></div>}
-    {goals.length>0&&<div className="lc-goal-timeline"><small>GOAL SCORERS</small><div className="lc-scorer-side home">{goals.filter(goal=>goal.side==='home').map(goal=><div className="lc-scorer-row" key={goal.id||`${goal.scorer}-${goal.minute}`}><span>{goal.type==='penalty'?'P':'⚽'}</span><p><b>{goal.scorer}</b>{goal.type==='penalty'&&<em>PENALTY</em>}</p>{goal.minute&&<strong>{goal.minute}′</strong>}</div>)}</div><div className="lc-scorer-side away">{goals.filter(goal=>goal.side==='away').map(goal=><div className="lc-scorer-row" key={goal.id||`${goal.scorer}-${goal.minute}`}><span>{goal.type==='penalty'?'P':'⚽'}</span><p><b>{goal.scorer}</b>{goal.type==='penalty'&&<em>PENALTY</em>}</p>{goal.minute&&<strong>{goal.minute}′</strong>}</div>)}</div></div>}
-  </article>
+        let animationFrameId;
+        const draw = () => {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach((p, i) => {
+                p.tiltAngle += p.tiltAngleIncremental;
+                p.y += (Math.cos(p.d) + 2 + p.r / 2) / 1.2;
+                p.tilt = Math.sin(p.tiltAngle) * 15;
+
+                if (p.y > height) {
+                    particles[i] = {
+                        x: Math.random() * width,
+                        y: -20,
+                        r: p.r,
+                        d: p.d,
+                        color: p.color,
+                        tilt: p.tilt,
+                        tiltAngleIncremental: p.tiltAngleIncremental,
+                        tiltAngle: p.tiltAngle
+                    };
+                }
+
+                ctx.beginPath();
+                ctx.lineWidth = p.r;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                ctx.stroke();
+            });
+            animationFrameId = requestAnimationFrame(draw);
+        };
+        draw();
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, []);
+
+    return (
+        <canvas
+            id="npl-confetti-canvas"
+            style={{
+                position: 'fixed',
+                inset: 0,
+                pointerEvents: 'none',
+                zIndex: 99
+            }}
+        />
+    );
 }
 
-function HomeView({live,setTab,fixtures}){
-  const upcoming=fixtures.filter(match=>!match.completed);
-  const liveActive=live&&['LIVE','HALF TIME'].includes(live.status);
-  const featured=liveActive?live:upcoming[0];
-  const nextMatches=upcoming.filter(match=>String(match.id)!==String(featured?.fixtureId||featured?.id)).slice(0,3);
-  return <>
-    <section className="lc-welcome">
-      <div><small>HUNTERS FC PRESENTS</small><h1>LEAGUE<br/><em>CENTER.</em></h1></div>
-      <img className="lc-hero-logo" src="/assets/npl/nplLogo.png" alt="NPL logo"/><img className="lc-hero-type" src="/assets/npl/nplTyphography.png" alt="NPL typography"/>
-    </section>
-    <div className="lc-stat-strip"><div><b>08</b><span>TEAMS</span></div><div><b>12</b><span>GROUP FIXTURES</span></div><div><b>02</b><span>GROUPS</span></div></div>
-    <section className="lc-section"><div className="lc-heading"><div><small>MATCH CENTER</small><h2>{liveActive?'Live now':'Featured match'}</h2></div><button onClick={()=>setTab('fixtures')}>All fixtures →</button></div>{featured?<MatchCard featured match={liveActive?featured:{...featured,status:'UP NEXT'}}/>:<div className="lc-empty compact"><b>ALL GAMES COMPLETED</b><p>No upcoming fixture is currently scheduled.</p></div>}</section>
-    <section className="lc-section"><div className="lc-heading"><div><small>NEXT ON THE PITCH</small><h2>Upcoming</h2></div></div>{nextMatches.length?<div className="lc-mini-list">{nextMatches.map(match=><MatchCard key={match.id} match={match}/>)}</div>:<div className="lc-empty compact"><b>NO UPCOMING GAMES</b><p>The next knockout round will appear after results are confirmed.</p></div>}</section>
-  </>
+function Eyebrow({ children, dark = false }) {
+    return <div className={`eyebrow ${dark ? 'eyebrow-dark' : ''}`}><i /> {children}</div>;
 }
 
-function QualificationPath(){return <section className="lc-qualification"><div className="lc-heading"><div><small>TOURNAMENT GRAPH</small><h2>Road to the trophy</h2></div></div><div className="tournament-graph"><div className="graph-stage-label"><span>01</span><b>GROUP TABLE</b><small>TOP TWO ADVANCE</small></div><div className="graph-groups"><article><header>GROUP A</header><p><strong>A1</strong><span>1st place</span></p><p><strong>A2</strong><span>2nd place</span></p></article><article><header>GROUP B</header><p><strong>B1</strong><span>1st place</span></p><p><strong>B2</strong><span>2nd place</span></p></article></div><div className="graph-flow"><i/><span>POINTS DECIDE</span><i/></div><div className="graph-stage-label"><span>02</span><b>SEMI-FINALS</b><small>CROSS-GROUP DRAW</small></div><div className="graph-semis"><article><small>SEMI-FINAL 01</small><p><b>A1</b><span>Group A · 1st</span></p><em>VS</em><p><b>B2</b><span>Group B · 2nd</span></p></article><article><small>SEMI-FINAL 02</small><p><b>B1</b><span>Group B · 1st</span></p><em>VS</em><p><b>A2</b><span>Group A · 2nd</span></p></article></div><div className="graph-merge"><i/><span>WINNERS ADVANCE</span><i/></div><div className="graph-stage-label"><span>03</span><b>THE FINAL</b><small>ONE MATCH · TWO HONOURS</small></div><article className="graph-final"><div><small>WINNER SF 01</small><b>FINALIST 01</b></div><span>VS</span><div><small>WINNER SF 02</small><b>FINALIST 02</b></div></article><div className="graph-result-flow"><i/><span>FINAL RESULT</span><i/></div><div className="graph-outcomes"><article className="winner"><span>★</span><small>NPL SEASON 4</small><b>WINNER</b><em>Final winner</em></article><article className="runner"><span>◆</span><small>NPL SEASON 4</small><b>RUNNER-UP</b><em>Final runner-up</em></article></div></div><p>League points determine group position. If teams finish level on points, goal difference separates them.</p></section>}
-
-function FixturesView({fixtures}){
-  const [group,setGroup]=useState('ALL');
-  const shown=group==='ALL'?fixtures:group==='KO'?fixtures.filter(f=>Number(f.id)>12):fixtures.filter(f=>f.round.startsWith(`Group ${group}`));
-  return <section className="lc-view"><div className="lc-page-title"><small>OFFICIAL LEAGUE SCHEDULE</small><h1>Fixtures.</h1><p>Group standings automatically create the semifinals, followed by the final when both semifinal winners are known.</p></div><div className="lc-fixture-key"><span><i/> GROUP + KNOCKOUT</span><span>3 pts win · 1 pt draw · 0 pts loss</span></div><div className="lc-filters">{['ALL','A','B','KO'].map(x=><button className={group===x?'active':''} onClick={()=>setGroup(x)} key={x}>{x==='ALL'?`All ${fixtures.length} matches`:x==='KO'?'Knockout':`Group ${x}`}</button>)}</div><div className="lc-fixture-list">{shown.map(match=><MatchCard key={match.id} match={match}/>)}</div><QualificationPath/></section>
+function SponsorShowcase() {
+    return (
+        <section className="npl-block">
+            <div className="block-title">
+                <h2>BACKED BY</h2>
+                <span>OFFICIAL SPONSORS</span>
+            </div>
+            <div className="sponsor-lead">
+                {mainSponsors.map(s => (
+                    <article key={s.title}>
+                        <small>{s.title}</small>
+                        <img src={s.image} alt={s.title} />
+                    </article>
+                ))}
+            </div>
+            <div className="award-title">
+                <span>INDIVIDUAL AWARD SPONSORS</span>
+                <i />
+            </div>
+            <div className="sponsor-awards">
+                {awardSponsors.map(s => (
+                    <article key={s.title}>
+                        <small>{s.title}</small>
+                        <img src={s.image} alt={s.title} />
+                    </article>
+                ))}
+            </div>
+        </section>
+    );
 }
 
-function calculateTable(fixtures=[],names=[],live){const rows=Object.fromEntries(names.map(name=>[name,{name,p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,live:false}]));const completed=fixtures.filter(match=>match?.completed&&Boolean(rows[match.home])&&Boolean(rows[match.away]));const liveActive=['LIVE','HALF TIME'].includes(live?.status)&&Boolean(rows[live?.homeTeam])&&Boolean(rows[live?.awayTeam])&&!completed.some(match=>match.home===live.homeTeam&&match.away===live.away);const matches=liveActive?[...completed,{home:live.homeTeam,away:live.away,homeScore:live.homeScore,awayScore:live.awayScore,provisional:true}]:completed;matches.forEach(match=>{const home=rows[match?.home],away=rows[match?.away];if(!home||!away)return;const hs=Math.max(0,Number(match.homeScore)||0),as=Math.max(0,Number(match.awayScore)||0);home.p++;away.p++;home.gf+=hs;home.ga+=as;away.gf+=as;away.ga+=hs;if(match.provisional){home.live=true;away.live=true}if(hs>as){home.w++;home.pts+=3;away.l++}else if(hs<as){away.w++;away.pts+=3;home.l++}else{home.d++;away.d++;home.pts++;away.pts++}});return Object.values(rows).map(row=>({...row,gd:row.gf-row.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name))}
-
-function TableView({fixtures,live}){const hasLive=['LIVE','HALF TIME'].includes(live?.status);return <section className="lc-view"><div className="lc-page-title"><small>{hasLive?'● LIVE TABLE':'LIVE LEAGUE POSITION'}</small><h1>Points.</h1><p>Win 3 · Draw 1 · Loss 0. During a live match, points and goals update provisionally in real time.</p></div><div className="lc-table-legend"><span>P Played</span><span>GF Goals for</span><span>GA Goals against</span><span>GD Goal difference</span></div>{Object.entries(groups).map(([group,names])=><article className="lc-table lc-points-table" key={group}><header><b>GROUP {group}</b><span>P&nbsp; W&nbsp; D&nbsp; L&nbsp; GF&nbsp; GA&nbsp; GD&nbsp; PTS</span></header>{calculateTable(fixtures,names,live).map((row,index)=><div className={`${index<2?'qualifying ':''}${row.live?'live-row':''}`} key={row.name}><span>{index+1}</span><TeamLogo name={row.name}/><b>{row.name}{row.live?<em>● LIVE</em>:index<2&&<em>QUALIFYING</em>}</b><small className="lc-row-stats"><span>{row.p}</span><span>{row.w}</span><span>{row.d}</span><span>{row.l}</span><span>{row.gf}</span><span>{row.ga}</span><span>{row.gd}</span><strong>{row.pts}</strong></small></div>)}</article>)}<QualificationPath/></section>}
-
-function TeamsView({openFormation}){const [records,setRecords]=useState([]);useEffect(()=>watchTeams(setRecords,()=>{}),[]);return <section className="lc-view"><div className="lc-page-title"><small>EIGHT CRESTS · ONE TROPHY</small><h1>The teams.</h1><p>Every official NPL Season 4 side and its management staff.</p></div><div className="lc-team-grid">{teams.map((name,index)=>{const record=records.find(item=>item.id===ids[index]);const managers=Array.isArray(record?.managers)?record.managers:[];return <button onClick={()=>openFormation(index)} key={name}><span>0{index+1}</span><TeamLogo name={name}/><b>{name}</b>{managers.length>0&&<div className="lc-team-managers">{managers.slice(0,2).map(manager=><em key={manager.id}>{manager.role}<strong>{manager.name}</strong></em>)}</div>}<small>VIEW FORMATION →</small></button>})}</div></section>}
-
-function rolePosition(role,index,total){
-  const r=(role||'').toLowerCase();
-  const lane=18+(index%4)*21;
-  if(r.includes('goal')) return {left:'50%',top:'86%'};
-  if(r.includes('sweeper')) return {left:'50%',top:'75%'};
-  if(r.includes('wing back')) return {left:r.includes('left')?'13%':'87%',top:'57%'};
-  if(r.includes('left back')) return {left:'20%',top:'67%'};
-  if(r.includes('right back')) return {left:'80%',top:'67%'};
-  if(r.includes('back')||r.includes('defend')) return {left:`${lane}%`,top:'65%'};
-  if(r.includes('left midfielder')) return {left:'20%',top:'45%'};
-  if(r.includes('right midfielder')) return {left:'80%',top:'45%'};
-  if(r.includes('midfielder')) return {left:`${lane}%`,top:r.includes('attacking')?'34%':'45%'};
-  if(r.includes('left winger')) return {left:'17%',top:'27%'};
-  if(r.includes('right winger')) return {left:'83%',top:'27%'};
-  if(r.includes('left')&&(r.includes('forward')||r.includes('wing'))) return {left:'22%',top:'22%'};
-  if(r.includes('right')&&(r.includes('forward')||r.includes('wing'))) return {left:'78%',top:'22%'};
-  if(r.includes('forward')||r.includes('striker')) return {left:'50%',top:'13%'};
-  return {left:`${lane}%`,top:'44%'};
+function Footer() {
+    return (
+        <footer className="site-footer">
+            <div className="footer-panel">
+                <div className="footer-columns">
+                    <div>
+                        <span className="footer-pill">More than a club</span>
+                        <h3>FOOTBALL.<br />COMMUNITY.<br />BROTHERHOOD.</h3>
+                    </div>
+                    <div>
+                        <span className="footer-pill">Our home</span>
+                        <h3>NIRANNAPARAMBU<br />KERALA · 679328</h3>
+                        <a href="https://maps.app.goo.gl/EVdD9biwy6PmWjAs6" target="_blank" rel="noreferrer">Open Google Maps ↗</a>
+                    </div>
+                    <nav>
+                        <span className="footer-pill">Explore</span>
+                        <Link href="/#team">Team Squad</Link>
+                        <Link href="/#location">Club Map</Link>
+                        <Link href="/npl">NPL Season 4</Link>
+                    </nav>
+                </div>
+                <div className="footer-art">
+                    <div className="footer-sticker sticker-npb">NPB</div>
+                    <div className="footer-sticker sticker-ball">⚽</div>
+                    <div className="footer-sticker sticker-year">2026</div>
+                    <strong>HUNTERS</strong>
+                </div>
+                <div className="footer-meta">
+                    <small>© 2026 HUNTERS FC NPB</small>
+                    <b>MORE THAN FOOTBALL.</b>
+                </div>
+            </div>
+        </footer>
+    );
 }
 
-function FormationView({selected,setSelected}){
-  const [team,setTeam]=useState(null);
-  const [loading,setLoading]=useState(true);
-  useEffect(()=>{setLoading(true);return watchTeam(ids[selected],data=>{setTeam(data);setLoading(false)},()=>setLoading(false))},[selected]);
-  const formation=useMemo(()=>Array.isArray(team?.formation)?team.formation:[],[team]);
-  const starters=formation.filter(p=>!String(p.role||p.position||'').toLowerCase().includes('sub')).slice(0,7);
-  const subs=formation.filter(p=>String(p.role||p.position||'').toLowerCase().includes('sub'));
-  return <section className="lc-view lc-formation-view"><div className="lc-page-title"><small>TEAM ADMIN PUBLISHED</small><h1>Formation.</h1><p>Select a team to see its current seven-a-side setup.</p></div><div className="lc-team-picker">{teams.map((name,index)=><button aria-label={name} className={selected===index?'active':''} onClick={()=>setSelected(index)} key={name}><TeamLogo name={name}/><span>{name}</span></button>)}</div><div className="lc-formation-head"><div><small>SELECTED TEAM</small><b>{teams[selected]}</b><em>{team?.formationSystem||'CUSTOM'} SYSTEM</em></div><TeamLogo name={teams[selected]}/></div>{Array.isArray(team?.managers)&&team.managers.length>0&&<div className="lc-formation-staff"><small>TEAM MANAGEMENT</small><div>{team.managers.map(manager=><article key={manager.id}><span>{manager.name.split(' ').map(word=>word[0]).join('').slice(0,2).toUpperCase()}</span><div><b>{manager.name}</b><em>{manager.role}</em></div></article>)}</div></div>}{loading?<div className="lc-empty">Loading formation…</div>:starters.length?<><div className="lc-pitch"><div className="lc-pitch-lines" aria-hidden="true"><i className="circle"/><i className="spot"/><i className="box"/><i className="goal"/></div>{starters.map((player,index)=><div className="lc-player" style={rolePosition(player.role||player.position,index,starters.length)} key={`${player.name}-${index}`}><span>{player.number||index+1}</span><b>{player.name}</b><small>{player.role||player.position}</small></div>)}</div>{subs.length>0&&<div className="lc-bench"><small>SUBSTITUTES</small>{subs.map(p=><span key={p.name}>{p.name}</span>)}</div>}</>:<div className="lc-empty"><TeamLogo name={teams[selected]}/><b>FORMATION NOT PUBLISHED YET</b><p>This screen will update automatically when the team admin publishes the squad.</p></div>}</section>
-}
+export default function NplExperience() {
+    const [selectedImage, setSelectedImage] = useState(null);
 
-export default function NplExperience(){
-  const [tab,setTab]=useState('home');const [live,setLive]=useState(null);const [selected,setSelected]=useState(0);const [fixtures,setFixtures]=useState(groupFixtures);
-  useEffect(()=>watchLiveMatch(setLive,()=>{}),[]);
-  useEffect(()=>watchFixtureSchedule(remote=>{if(remote.length)setFixtures(mergeTournamentSchedule(remote))}),[]);
-  const openFormation=index=>{setSelected(index);setTab('formation');window.scrollTo({top:0,behavior:'smooth'})};
-  const changeTab=next=>{setTab(next);window.scrollTo({top:0,behavior:'smooth'})};
-  return <main className="league-app"><header className="lc-topbar"><Link href="/" aria-label="Back to Hunters FC">←</Link><div><img src="/assets/npl/nplLogo.png" alt=""/><span><small>NIRANNAPARAMBU</small><b>NPL SEASON 4</b></span></div><i>04</i></header><div className="lc-content">{tab==='home'&&<HomeView live={live} setTab={changeTab} fixtures={fixtures}/>} {tab==='fixtures'&&<FixturesView fixtures={fixtures}/>} {tab==='table'&&<TableView fixtures={fixtures} live={live}/>} {tab==='teams'&&<TeamsView openFormation={openFormation}/>} {tab==='formation'&&<FormationView selected={selected} setSelected={setSelected}/>}</div><nav className="lc-tabbar" aria-label="NPL sections">{tabs.map(([id,label])=><button key={id} className={tab===id?'active':''} onClick={()=>changeTab(id)}><i><TabIcon name={id}/></i><span>{label}</span></button>)}</nav></main>
+    return (
+        <main className="npl-page">
+            <ConfettiCanvas />
+            
+            {/* Topbar back button */}
+            <header className="lc-topbar">
+                <Link href="/" aria-label="Back to Hunters FC">←</Link>
+                <div>
+                    <img src="/assets/npl/nplLogo.png" alt="NPL Logo" />
+                    <span><small>NIRANNAPARAMBU</small><b>NPL SEASON 4</b></span>
+                </div>
+                <i>04</i>
+            </header>
+
+            {/* Modal Lightbox for Posters */}
+            {selectedImage && (
+                <div className="npl-poster-modal" onClick={() => setSelectedImage(null)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close" onClick={() => setSelectedImage(null)}>✕</button>
+                        <img src={selectedImage.src} alt={selectedImage.alt} />
+                        <div className="modal-caption">{selectedImage.caption}</div>
+                    </div>
+                </div>
+            )}
+
+            <section className="npl-hero">
+                <div className="npl-grid" />
+                <div className="npl-crest-wall" aria-hidden="true">
+                    {teamLogos.map((logo, i) => <img src={logo} alt="" key={logo} style={{ '--crest': i }} />)}
+                </div>
+                <img className="npl-official-logo" src="/assets/npl/nplLogo.png" alt="Nirannaparambu Premier League Season 4" />
+                <div className="npl-hero-copy">
+                    <Eyebrow>Nirannaparambu Premier League</Eyebrow>
+                    <div className="completed-pill">
+                        <span className="trophy-gold">🏆</span> GAME COMPLETED · NPL SEASON 04
+                    </div>
+                    <h1>CHAMPIONS<span>04</span></h1>
+                    <p>Congratulations to NPL Season 4 Winners Golden Falcon & Runners-Up Atletico FC!</p>
+                    <div className="event-line">
+                        <b>08 AUG 2026</b>
+                        <span>THRILLOX FOOTBALL TURF · WANDOOR</span>
+                    </div>
+                    <img className="npl-type-art" src="/assets/npl/nplTyphography.png" alt="NPL Season 4 Malayalam typography" />
+                </div>
+            </section>
+
+            <div className="npl-marquee" aria-label="NPL Season 4 Champions">
+                <div>
+                    <span>🏆 GOLDEN FALCON — NPL 04 CHAMPIONS</span><i>✦</i>
+                    <span>🥈 ATLETICO FC — RUNNERS UP</span><i>✦</i>
+                    <span>🏆 GOLDEN FALCON — NPL 04 CHAMPIONS</span><i>✦</i>
+                    <span>🥈 ATLETICO FC — RUNNERS UP</span><i>✦</i>
+                </div>
+            </div>
+
+            {/* Showcase Winners & Runners Section */}
+            <section className="npl-content section npl-champions-showcase">
+                <div className="champions-showcase-grid">
+                    {/* WINNERS CARD */}
+                    <article className="trophy-card winner-card">
+                        <div className="trophy-card-header">
+                            <div className="trophy-badge winner-tag">
+                                <span>🏆 WINNERS</span>
+                                <small>NPL SEASON 04 CHAMPIONS</small>
+                            </div>
+                            <div className="team-header-info">
+                                <img src="/assets/npl/team/goldenFalconFC.png" alt="Golden Falcon" className="team-badge-large" />
+                                <div>
+                                    <h2>GOLDEN FALCON</h2>
+                                    <span className="title-sub">NPL Season 4 Champions</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="poster-frame" onClick={() => setSelectedImage({ src: '/assets/npl/nplWinners.jpg', alt: 'Golden Falcon NPL Winners', caption: '🏆 Golden Falcon — NPL Season 04 Winners Poster' })}>
+                            <img src="/assets/npl/nplWinners.jpg" alt="Golden Falcon NPL Winners Poster" />
+                            <div className="poster-overlay">
+                                <span>🔍 Click / Tap to Expand Poster</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    {/* RUNNERS UP CARD */}
+                    <article className="trophy-card runner-card">
+                        <div className="trophy-card-header">
+                            <div className="trophy-badge runner-tag">
+                                <span>🥈 RUNNERS UP</span>
+                                <small>NPL SEASON 04 FINALIST</small>
+                            </div>
+                            <div className="team-header-info">
+                                <img src="/assets/npl/team/AtleticoFC.png" alt="Atletico FC" className="team-badge-large" />
+                                <div>
+                                    <h2>ATLETICO FC</h2>
+                                    <span className="title-sub">NPL Season 4 Runners Up</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="poster-frame" onClick={() => setSelectedImage({ src: '/assets/npl/nplRunners.jpg', alt: 'Atletico FC NPL Runners Up', caption: '🥈 Atletico FC — NPL Season 04 Runners Up Poster' })}>
+                            <img src="/assets/npl/nplRunners.jpg" alt="Atletico FC NPL Runners Up Poster" />
+                            <div className="poster-overlay">
+                                <span>🔍 Click / Tap to Expand Poster</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <SponsorShowcase />
+            </section>
+
+            <Footer />
+        </main>
+    );
 }
